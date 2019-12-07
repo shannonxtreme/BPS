@@ -13,6 +13,7 @@
 #include "WDTimer.h"
 #include "SoC.h"
 #include "LED.h"
+#include "SysTick.h"
 
 cell_asic Minions[NUM_MINIONS];
 
@@ -20,24 +21,33 @@ void initialize(void);
 void preliminaryCheck(void);
 void faultCondition(void);
 
-int realmainmain(){
+int realmain(){
 	__disable_irq();		// Disable all interrupts until initialization is done
 	initialize();			// Initialize codes/pins
 	preliminaryCheck();		// Wait until all boards are powered on
 	__enable_irq();			// Enable interrupts
 
 	WDTimer_Start();
-	
+
+	bool override = false;		// This will be changed by user via CLI	
 	while(1){
 		// First update the measurements.
 		Voltage_UpdateMeasurements();
 		Current_UpdateMeasurements();
 		Temperature_UpdateMeasurements();
+		
+		SafetyStatus current = Current_SafetyStatus();
+		SafetyStatus temp = Temperature_IsSafe(Current_IsCharging());
+		SafetyStatus voltage = Voltage_IsSafe();
 
-		// Check if everything is safe
-		if(Current_IsSafe() && Temperature_IsSafe(Current_IsCharging()) && Voltage_IsSafe()){
+		// Check if everything is safe (all return SAFE = 0)
+		if((current == SAFE) && (temp == SAFE) && (voltage == SAFE) && !override) {
 			Contactor_On();
-		}else{
+		}
+		else if((current == SAFE) && (temp == SAFE) && (voltage == UNDERVOLTAGE) && override) {
+			Contactor_On();
+			continue;
+		} else {
 			break;
 		}
 
@@ -97,7 +107,7 @@ void faultCondition(void){
   
 	uint8_t error = 0;
 
-	if(!Current_IsSafe()){
+	if(!Current_SafetyStatus()){
 		error |= FAULT_HIGH_CURRENT;
 		LED_On(OCURR);
 	}
@@ -137,23 +147,24 @@ void faultCondition(void){
 	for(int i = 1; i < 0x00FF; i <<= 1) {
 		if((error & i) == 0) continue;
 		
-		uint8_t *modules;
+		SafetyStatus *voltage_modules;
+		uint8_t *temp_modules;
 		uint16_t curr;
 		switch(i) {
 		// Temperature fault handling
 		case FAULT_HIGH_TEMP:
-			modules = Temperature_GetModulesInDanger();
+			temp_modules = Temperature_GetModulesInDanger();
 			for(int j = 0; j < NUM_BATTERY_MODULES; ++j)
-				if(modules[j]) EEPROM_LogData(FAULT_HIGH_TEMP, j);
+				if(temp_modules[j]) EEPROM_LogData(FAULT_HIGH_TEMP, j);
 			break;
 		
 		// Voltage fault handling
 		case FAULT_HIGH_VOLT:
 		case FAULT_LOW_VOLT:
 		case FAULT_VOLT_MISC:
-			modules = Voltage_GetModulesInDanger();
+			voltage_modules = Voltage_GetModulesInDanger();
 			for(int j = 0; j < NUM_BATTERY_MODULES; ++j)
-				if(modules[j]) EEPROM_LogData(i, j);
+				if(voltage_modules[j]) EEPROM_LogData(i, j);
 			break;
 		
 		// Current fault handling
@@ -183,7 +194,7 @@ void faultCondition(void){
 // E.g. If you want to run a LTC6811 test, change "#define CHANGE_THIS_TO_TEST_NAME" to the
 //		following:
 //		#define LTC6811_TEST
-#define NO_TEST
+#define CURRENT_TEST
 
 
 #ifdef LED_TEST
@@ -332,20 +343,24 @@ int main(){
 int main(){
 	UART3_Init(9600);
 	Current_Init();	// Initialize the driver
-
 	// Loop over the tests
 	while(true) {
 		Current_UpdateMeasurements();	// Get the most recent readings
 
-		printf("\n\r==============================\n\rCurrent Test:\n\r");
-		printf("ADC High: %d\n\r", ADC_ReadHigh());
-		printf("ADC Low: %d\n\r", ADC_ReadLow());
-		printf("Is the battery safe? %d\n\r", Current_IsSafe());
-		printf("Is the battery charging? %d\n\r", Current_IsCharging());
-		printf("High: %d\n\r", Current_GetHighPrecReading());
-		printf("Low: %d\n\r", Current_GetLowPrecReading());
+	//	printf("\n\r==============================\n\rCurrent Test:\n\r");
+	//	printf("ADC High: %d\n\r", ADC_ReadHigh());
+	//	printf("ADC Low: %d\n\r", ADC_ReadLow());
+	//	printf("Is the battery safe? %d\n\r", Current_SafetyStatus());
+	//	printf("Is the battery charging? %d\n\r", Current_IsCharging());
+	//	printf("High: %d\n\r", Current_GetHighPrecReading());
+	//	printf("Low: %d\n\r", Current_GetLowPrecReading());
 
-		for(int i = 0; i < 10000000; ++i);
+		volatile uint16_t ADCRH = ADC_ReadHigh();
+		volatile uint16_t ADCRL = ADC_ReadLow();
+		volatile int CIS = Current_SafetyStatus();
+		volatile bool CIC = Current_IsCharging();
+		volatile int32_t Current_High = Current_GetHighPrecReading();
+		volatile int32_t Current_Low = Current_GetLowPrecReading();
 	}
 }
 #endif
