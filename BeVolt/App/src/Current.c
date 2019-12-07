@@ -42,7 +42,8 @@ ErrorStatus Current_UpdateMeasurements(void){
  * @return SAFE or DANGER
  */
 SafetyStatus Current_SafetyStatus(void){
-	
+	//Using absolute value because Current limit is positive value
+	//Adding 1025 is for offset with current sensor in board
 	if(abs(LowPrecisionCurrent) + 1025 > MAX_CURRENT_LIMIT) {
 //	if(HighPrecisionCurrent > MAX_HIGH_PRECISION_CURRENT) {
 		return  DANGER;
