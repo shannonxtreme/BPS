@@ -8,9 +8,9 @@
 // TODO: Think of better naming convention of current
 
 #include "Current.h"
-
-int32_t HighPrecisionCurrent;	// Amp measurement of hall effect sensor of high precision
-int32_t LowPrecisionCurrent;	// Amp measurement of hall effect sensor of high precision
+#include "stdlib.h"
+int32_t HighPrecisionCurrent;	// milliAmp measurement of hall effect sensor of high precision
+int32_t LowPrecisionCurrent;	// milliAmp measurement of hall effect sensor of high precision
 
 typedef enum {
 	HIGH_PRECISION,
@@ -37,16 +37,15 @@ ErrorStatus Current_UpdateMeasurements(void){
 	return SUCCESS;	// TODO: Once this has been tested, stop returning errors
 }
 
-/** Current_IsSafe
+/** Current_SafetyStatus
  * Checks if pack does not have a short circuit
  * @return SAFE or DANGER
  */
-SafetyStatus Current_IsSafe(void){
-
-	if(HighPrecisionCurrent > MAX_HIGH_PRECISION_CURRENT) {
-		return (LowPrecisionCurrent < MAX_CURRENT_LIMIT)
-			? SAFE
-			: DANGER;
+SafetyStatus Current_SafetyStatus(void){
+	
+	if(abs(LowPrecisionCurrent) + 1025 > MAX_CURRENT_LIMIT) {
+//	if(HighPrecisionCurrent > MAX_HIGH_PRECISION_CURRENT) {
+		return  DANGER;
 	} else {
 		return SAFE;
 	}
@@ -66,7 +65,7 @@ int8_t Current_IsCharging(void){
  * Gets the Ampere measurement the high precision hall effect sensor recorded
  * @return Amperes value
  */
-int16_t Current_GetHighPrecReading(void){
+int32_t Current_GetHighPrecReading(void){
 	return HighPrecisionCurrent;
 }
 
@@ -74,8 +73,8 @@ int16_t Current_GetHighPrecReading(void){
  * Gets the Ampere measurement the low precision hall effect sensor recorded
  * @return Amperes value
  */
-int16_t Current_GetLowPrecReading(void){
-	return LowPrecisionCurrent;
+int32_t Current_GetLowPrecReading(void){
+	return abs(LowPrecisionCurrent) + 1025; //OFFSET OF 1025 ONLY FOR CERTAIN BOARD, IF BOARD REPLACED, OFFEST MUST BE CHANGED
 }
 
 /** ADC_Conversion

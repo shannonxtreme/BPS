@@ -27,7 +27,7 @@ ErrorStatus Current_UpdateMeasurements(void);
  * Checks if pack does not have a short circuit
  * @return SAFE or DANGER
  */
-SafetyStatus Current_IsSafe(void);
+SafetyStatus Current_SafetyStatus(void);
 
 /** Current_IsCharging
  * Determines if the the battery pack is being charged or discharged depending on
@@ -40,12 +40,12 @@ int8_t Current_IsCharging(void);
  * Gets the Ampere measurement the high precision hall effect sensor recorded
  * @return Amperes value
  */
-int16_t Current_GetHighPrecReading(void);
+int32_t Current_GetHighPrecReading(void);
 
 /** Current_GetLowPrecReading
  * Gets the Ampere measurement the low precision hall effect sensor recorded
  * @return Amperes value
  */
-int16_t Current_GetLowPrecReading(void);
+int32_t Current_GetLowPrecReading(void);
 
 #endif

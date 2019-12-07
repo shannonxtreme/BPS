@@ -20,7 +20,7 @@ void initialize(void);
 void preliminaryCheck(void);
 void faultCondition(void);
 
-int realmainmain(){
+int realmain(){
 	__disable_irq();		// Disable all interrupts until initialization is done
 	initialize();			// Initialize codes/pins
 	preliminaryCheck();		// Wait until all boards are powered on
@@ -35,7 +35,7 @@ int realmainmain(){
 		Temperature_UpdateMeasurements();
 
 		// Check if everything is safe
-		if(Current_IsSafe() && Temperature_IsSafe(Current_IsCharging()) && Voltage_IsSafe()){
+		if(Current_SafetyStatus() && Temperature_IsSafe(Current_IsCharging()) && Voltage_IsSafe()){
 			Contactor_On();
 		}else{
 			break;
@@ -97,7 +97,7 @@ void faultCondition(void){
   
 	uint8_t error = 0;
 
-	if(!Current_IsSafe()){
+	if(!Current_SafetyStatus()){
 		error |= FAULT_HIGH_CURRENT;
 		LED_On(OCURR);
 	}
@@ -183,7 +183,7 @@ void faultCondition(void){
 // E.g. If you want to run a LTC6811 test, change "#define CHANGE_THIS_TO_TEST_NAME" to the
 //		following:
 //		#define LTC6811_TEST
-#define NO_TEST
+#define CURRENT_TEST
 
 
 #ifdef LED_TEST
@@ -332,20 +332,24 @@ int main(){
 int main(){
 	UART3_Init(9600);
 	Current_Init();	// Initialize the driver
-
 	// Loop over the tests
 	while(true) {
 		Current_UpdateMeasurements();	// Get the most recent readings
 
-		printf("\n\r==============================\n\rCurrent Test:\n\r");
-		printf("ADC High: %d\n\r", ADC_ReadHigh());
-		printf("ADC Low: %d\n\r", ADC_ReadLow());
-		printf("Is the battery safe? %d\n\r", Current_IsSafe());
-		printf("Is the battery charging? %d\n\r", Current_IsCharging());
-		printf("High: %d\n\r", Current_GetHighPrecReading());
-		printf("Low: %d\n\r", Current_GetLowPrecReading());
+	//	printf("\n\r==============================\n\rCurrent Test:\n\r");
+	//	printf("ADC High: %d\n\r", ADC_ReadHigh());
+	//	printf("ADC Low: %d\n\r", ADC_ReadLow());
+	//	printf("Is the battery safe? %d\n\r", Current_SafetyStatus());
+	//	printf("Is the battery charging? %d\n\r", Current_IsCharging());
+	//	printf("High: %d\n\r", Current_GetHighPrecReading());
+	//	printf("Low: %d\n\r", Current_GetLowPrecReading());
 
-		for(int i = 0; i < 10000000; ++i);
+		volatile uint16_t ADCRH = ADC_ReadHigh();
+		volatile uint16_t ADCRL = ADC_ReadLow();
+		volatile int CIS = Current_SafetyStatus();
+		volatile bool CIC = Current_IsCharging();
+		volatile int32_t Current_High = Current_GetHighPrecReading();
+		volatile int32_t Current_Low = Current_GetLowPrecReading();
 	}
 }
 #endif
