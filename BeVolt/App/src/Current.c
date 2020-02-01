@@ -9,8 +9,8 @@
 
 #include "Current.h"
 
-int32_t HighPrecisionCurrent;	// Amp measurement of hall effect sensor of high precision
-int32_t LowPrecisionCurrent;	// Amp measurement of hall effect sensor of high precision
+int32_t HighPrecisionCurrent;	// MAmp measurement of hall effect sensor of high precision
+int32_t LowPrecisionCurrent;	// MAmp measurement of hall effect sensor of high precision
 
 typedef enum {
 	HIGH_PRECISION,
@@ -43,10 +43,10 @@ ErrorStatus Current_UpdateMeasurements(void){
  */
 SafetyStatus Current_CheckStatus(void){
 
-	if(HighPrecisionCurrent > MAX_HIGH_PRECISION_CURRENT) {
-		return (LowPrecisionCurrent < MAX_CURRENT_LIMIT)
-			? SAFE
-			: DANGER;
+	if(HighPrecisionCurrent > (MAX_CURRENT_LIMIT*100) || HighPrecisionCurrent < (MAX_DISCHARGE_CURRENT*100)) {
+		return DANGER;
+	} else if (LowPrecisionCurrent > (MAX_CURRENT_LIMIT*100) || LowPrecisionCurrent < (MAX_DISCHARGE_CURRENT*100)) {
+		return DANGER;
 	} else {
 		return SAFE;
 	}

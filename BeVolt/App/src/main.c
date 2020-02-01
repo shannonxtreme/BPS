@@ -202,7 +202,7 @@ void faultCondition(void){
 // E.g. If you want to run a LTC6811 test, change "#define CHANGE_THIS_TO_TEST_NAME" to the
 //		following:
 //		#define LTC6811_TEST
-#define FULL_TEST
+#define CURRENT_TEST
 
 
 #ifdef LED_TEST
@@ -349,7 +349,7 @@ int main(){
 #include "UART.h"
 #include "ADC.h"
 int main(){
-	UART3_Init(9600);
+	UART3_Init();
 	Current_Init();	// Initialize the driver
 
 	// Loop over the tests
