@@ -9,6 +9,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "stm32f4xx.h"
+#include "FIFO.h"
+
+extern Fifo SPIRxFifo;//fifo to store data from uart interrupt handler
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,7 +73,7 @@ void SPI1_WriteMulti(uint8_t *txBuf, uint32_t txSize);
  * NOTE: You must bring CS down before calling this function and raise it up after finishing.
  * @return single byte that has been received.
  */
-uint8_t SPI1_Read(void);
+uint8_t SPI1_Read(Fifo *fifo);
 
 /** SPI1_Read
  * Reads multiple 8-bit packets from slave.
@@ -79,7 +83,7 @@ uint8_t SPI1_Read(void);
  * @param rxBuf buffer that the received packet will be placed.
  * @param rxSize number of bytes to read from slave.
  */
-void SPI1_ReadMulti(uint8_t *rxBuf, uint32_t rxSize);
+SafetyStatus SPI1_ReadMulti(uint8_t *rxBuf, uint32_t rxSize, Fifo *fifo);
 
 /** SPI1_WriteRead
  * Sends and receives single 8-bit data from slave.

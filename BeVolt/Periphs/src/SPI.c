@@ -19,6 +19,14 @@
 #include "stm32f4xx.h"
 #include "SPI.h"
 
+
+
+Fifo SPIRxFifo;//fifo to store data from uart interrupt handler
+
+// This is required to use printf
+struct __FILE{
+	int file;
+};
 /** SPI1_Init
  * Initializes SPI1 for multiple slaves to use. This SPI line is for 8 bit message formats.
  */
@@ -26,12 +34,14 @@ void SPI1_Init(void){
 	GPIO_InitTypeDef GPIO_InitStruct;
 	SPI_InitTypeDef SPI_InitStruct;
 	
+
+	
 	// Initialize clocks
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 	
 	// Initialize pins
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
@@ -54,6 +64,21 @@ void SPI1_Init(void){
 	SPI_InitStruct.SPI_CRCPolynomial = 0;	
 	SPI_Init(SPI1, &SPI_InitStruct);
 	SPI_Cmd(SPI1, ENABLE);
+	
+	//interrupt 
+	NVIC_InitTypeDef NVIC_InitStructure;
+	
+	NVIC_InitStructure.NVIC_IRQChannel = SPI1_IRQn;
+      	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+      	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+      	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+      	NVIC_Init(&NVIC_InitStructure);
+				
+	
+	//initialize RxFifo
+		SPIRxFifo.head = 0;
+		SPIRxFifo.tail = 0;
+	
 }
 
 /** SPI3_Init
@@ -92,7 +117,20 @@ void SPI3_Init(void){
 	SPI_InitStruct.SPI_CRCPolynomial = 0;	
 	SPI_Init(SPI3, &SPI_InitStruct);
 	SPI_Cmd(SPI3, ENABLE);
+	
+	
+
 }
+
+//SPI1 Interrupt
+
+void SPI1_IRQHandler(void){
+	if(SPI_I2S_GetITStatus(SPI1, SPI_I2S_IT_RXNE) == SET){
+	/* Read one byte from the receive data register */
+		fifoPut(&SPIRxFifo, SPI_I2S_ReceiveData(SPI1));
+  }
+}
+
 
 /** SPI1_Write
  * Sends single 8-bit packet to slave.
@@ -151,9 +189,24 @@ void SPI3_WriteMulti(uint8_t *txBuf, uint32_t txSize){
  * NOTE: You must bring CS down before calling this function and raise it up after finishing.
  * @return single byte that has been received.
  */
-uint8_t SPI1_Read(void){
-	return SPI1_WriteRead(0x00);
+bool SPI1_HasCommand(Fifo *fifo){
+	for (int i = fifo->tail; i != fifo->head; i = (i + 1) % fifo_size){
+		if (fifo->queue[i] == 0x0d)
+			return true;
+	}
+	return false;
 }
+
+uint8_t SPI1_Read(Fifo *fifo){
+	if(fifoIsEmpty(*fifo)){
+		return DANGER;
+	}
+	if (SPI1_HasCommand(fifo)){
+		fifoGet(fifo);//get characters in the fifo
+	}
+	//return SPI1_WriteRead(0x00);
+}
+
 
 /** SPI3_Read
  * Reads single byte from slave.
@@ -174,11 +227,23 @@ uint8_t SPI3_Read(void){
  * @param rxBuf buffer that the received packet will be placed.
  * @param rxSize number of bytes to read from slave.
  */
-void SPI1_ReadMulti(uint8_t *rxBuf, uint32_t rxSize){
-	for(uint32_t i = 0; i < rxSize; i++){
-		rxBuf[i] = SPI1_WriteRead(0x00);
+SafetyStatus SPI1_ReadMulti(uint8_t *rxBuf, uint32_t rxSize, Fifo *fifo){
+	int32_t i = 0;
+	if((SPIRxFifo.tail - SPIRxFifo.head) < 0){
+		i = i +64;
 	}
+	if(((SPIRxFifo.tail - (SPIRxFifo.head + i)) + 1) < rxSize) {
+		return DANGER; 
+	}
+	
+	for(uint32_t i = 0; i < rxSize; i++){
+		if (SPI1_HasCommand(fifo)){
+			rxBuf[i] = fifoGet(fifo);//get characters in the fifo
+		}
+	}
+	return SAFE;
 }
+	
 
 /** SPI3_ReadMulti
  * Reads multiple 8-bit packets from slave.
@@ -237,7 +302,7 @@ uint8_t SPI3_WriteRead(uint8_t txData){
 void SPI1_WriteReadMulti(uint8_t *txBuf, uint32_t txSize, uint8_t *rxBuf, uint32_t rxSize, bool cmd){
 	if(cmd){
 		SPI1_WriteMulti(txBuf, txSize);
-		SPI1_ReadMulti(rxBuf, rxSize);
+		SPI1_ReadMulti(rxBuf, rxSize, &SPIRxFifo);
 	}else{
 		for(uint32_t i = 0; i < txSize; i++){
 			rxBuf[i] = SPI1_WriteRead(txBuf[i]);

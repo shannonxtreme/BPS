@@ -46,8 +46,11 @@ Copyright 2017 Linear Technology Corp. (LTC)
 #include "SPI.h"
 #include "stm32f4xx.h"
 
-static uint8_t spi_read8(void){
-	return SPI1_Read();
+
+
+
+static uint8_t spi_read8(Fifo *fifo){
+	return SPI1_Read(fifo);
 }
 
 static void spi_write_multi8(uint8_t *txBuf, uint32_t txSize){
@@ -91,7 +94,7 @@ void wakeup_idle(uint8_t total_ic)
   {
     cs_set(0);
     delay_m(5); //Guarantees the isoSPI will be in ready mode
-    tempReg = spi_read8();
+    tempReg = spi_read8(&SPIRxFifo);
     cs_set(1);
   }
 }
@@ -385,7 +388,7 @@ uint32_t LTC681x_pollAdc()
 
   while ((counter<200000)&&(finished == 0))
   {
-    current_time = spi_read8();
+    current_time = spi_read8(&SPIRxFifo);
     if (current_time>0)
     {
       finished = 1;
@@ -1770,7 +1773,7 @@ void LTC681x_stcomm()
   spi_write_multi8(cmd,4);
   for (int i = 0; i<9; i++)
   {
-    temp = spi_read8();
+    temp = spi_read8(&SPIRxFifo);
   }
   cs_set(1);
 

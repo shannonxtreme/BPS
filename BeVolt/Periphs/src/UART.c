@@ -118,8 +118,8 @@ void UART3_Init(void){
 	When the USART1 interrupt is generated (in this example when
 	data is received) the USART1_IRQHandler will be served */
   	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
-      	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-      	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+      	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
+      	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 6;
       	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
       	NVIC_Init(&NVIC_InitStructure);
 			

@@ -202,7 +202,7 @@ void faultCondition(void){
 // E.g. If you want to run a LTC6811 test, change "#define CHANGE_THIS_TO_TEST_NAME" to the
 //		following:
 //		#define LTC6811_TEST
-#define CURRENT_TEST
+#define SPI_TEST
 
 
 #ifdef LED_TEST
@@ -505,8 +505,8 @@ int main(){
 #include "UART.h"
 int SPITestmain(){
 	__disable_irq();
-	UART3_Init(9600);
-	SPI_Init8();
+	UART3_Init();
+	SPI1_Init();
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);	// 1) Initialize GPIO portB clock
 	GPIO_InitTypeDef GPIO_InitStruct;
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6;								// 2) Initialize which pins to use
@@ -521,7 +521,7 @@ int SPITestmain(){
 	char str[30] = "Testing\n\r";
 	UART3_Write(str, strlen(str));
 	GPIOB->ODR &= ~GPIO_Pin_6;
-	SPI_Write8((uint8_t *)str, strlen(str));
+	SPI3_WriteMulti((uint8_t *)str, strlen(str));
 	GPIOB->ODR |= GPIO_Pin_6;
 	while(1){
 
