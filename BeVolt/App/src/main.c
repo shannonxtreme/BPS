@@ -17,12 +17,13 @@
 #include "PLL.h"
 
 cell_asic Minions[NUM_MINIONS];
+uint8_t NUM_MODULES_PER_MINION[NUM_MINIONS] = {8,8,8,7}; //Array to get module count from minion index
 
 void initialize(void);
 void preliminaryCheck(void);
 void faultCondition(void);
 
-int realmain(){
+int main(){
 	__disable_irq();		// Disable all interrupts until initialization is done
 	initialize();			// Initialize codes/pins
 	preliminaryCheck();		// Wait until all boards are powered on
@@ -202,7 +203,7 @@ void faultCondition(void){
 // E.g. If you want to run a LTC6811 test, change "#define CHANGE_THIS_TO_TEST_NAME" to the
 //		following:
 //		#define LTC6811_TEST
-#define CAN_TEST_2
+#define NO_TEST
 
 #ifdef Systick_TEST
 
