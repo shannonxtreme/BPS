@@ -21,15 +21,25 @@ void ReleaseChargeInit() {
 			minIndex = i;//Find module with minimum voltage
 		}
 	}	
-	ReleaseCharge();
 }
 	
-void ReleaseCharge(){ 
-		uint8_t currVoltage;
-		for (uint8_t k = 0; k < NUM_BATTERY_MODULES; k++) {
-			// voltage @ i
-			//if greater - set discharge Bit;
-			//else clearerr discharge bit
+void ReleaseCharge(cell_asic Minions[]){ 
+	bool stillDischarging = false; 
+	for (uint8_t k = 0; k < NUM_BATTERY_MODULES; k++) {
+		// voltage @ i
+		//if greater - set discharge Bit;
+		//else clearerr discharge bit
+		uint16_t voltage = Voltage_GetModuleMillivoltage(k);
+		if (voltage > minVoltage + chargingTolerance) {
+			//insert discharging code
+			stillDischarging = true;
 		}
-	// make all open circuits
+		else {
+			//clear discharge bit
+		}
 	}
+	// make all open circuits
+	if (!stillDischarging) {
+		clear_discharge(NUM_MINIONS, Minions);
+	}
+}
