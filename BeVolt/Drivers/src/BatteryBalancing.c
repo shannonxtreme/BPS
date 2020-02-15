@@ -17,19 +17,22 @@ void ReleaseChargeInit() {
 	minVoltage = Voltage_GetModuleMillivoltage(0);
 	for (uint8_t i = 1; i < NUM_BATTERY_MODULES; i++){
 		if(Voltage_GetModuleMillivoltage(i) < minVoltage) {
-			minVoltage = Voltage_GetModuleMillivoltage(i);//Find minimum voltage
-			minIndex = i;//Find module with minimum voltage
+			minVoltage = Voltage_GetModuleMillivoltage(i);//Find minimum voltage and store in minVoltage
+			minIndex = i;//Find module with minimum voltage and store in minIndex
 		}
-	}	
-	ReleaseCharge();
+	}
 }
 	
-void ReleaseCharge(){ 
-		uint8_t currVoltage;
-		for (uint8_t k = 0; k < NUM_BATTERY_MODULES; k++) {
-			// voltage @ i
-			//if greater - set discharge Bit;
-			//else clearerr discharge bit
+void ReleaseCharge(cell_asic Minions[]){ 
+	int m = 1;
+	for (uint8_t k = 0; k < NUM_BATTERY_MODULES; k++) {
+		int n = 8; //Number of modules that will be set
+		if (k == 24){
+		n = 7; // Last minion board will have 7 modules
 		}
-	// make all open circuits
+		if (k%8 == 0){
+		m++;//if we get through 8 modules, go to next minion board
+		}
+		LTC6811_set_discharge(n, k, &Minions[m]);
+		}
 	}
