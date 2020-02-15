@@ -508,6 +508,11 @@
           <GroupName>Periphs/src</GroupName>
           <Files>
             <File>
+              <FileName>I2C.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Periphs\src\I2C.c</FilePath>
+            </File>
+            <File>
               <FileName>ADC.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Periphs\src\ADC.c</FilePath>
@@ -516,11 +521,6 @@
               <FileName>CAN.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Periphs\src\CAN.c</FilePath>
-            </File>
-            <File>
-              <FileName>I2C.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Periphs\src\I2C.c</FilePath>
             </File>
             <File>
               <FileName>SPI.c</FileName>
@@ -551,6 +551,11 @@
               <FileName>PLL.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Periphs\src\PLL.c</FilePath>
+            </File>
+            <File>
+              <FileName>BatteryBalancing.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Periphs\src\BatteryBalancing.c</FilePath>
             </File>
           </Files>
         </Group>
