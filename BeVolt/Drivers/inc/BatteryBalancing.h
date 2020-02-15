@@ -2,11 +2,10 @@
 #include "LTC6811.h"
 #include "Voltage.h"
 
-void BalanceBattery();
-/*Function which determines whether to discharge battery module
-or charge battery module
+void ReleaseChargeInit();
+/*
+Function wil return index with value of minimum voltage and module with minimum voltage
+
 */
 
 void ReleaseCharge();
-
-void ChargeMin();
