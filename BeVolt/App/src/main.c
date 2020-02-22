@@ -629,8 +629,8 @@ extern float float_SoC;
 int main(){
 	UART3_Init();
 	SoC_Init();
-	ChargingSoCTest();
-	//DischargingSoCTest();
+	//ChargingSoCTest();
+	DischargingSoCTest();
 }
 
 void ChargingSoCTest(void) {
@@ -642,20 +642,20 @@ void ChargingSoCTest(void) {
 	float_SoC = 0;
 	
 	clock_t startTime, endTime;
-	double deltaTime, ampHoursCollected, previous_SoC, theoretical_SoC;
+	float deltaTime, ampHoursCollected, previous_SoC, theoretical_SoC;
 	while(1){
 		startTime = clock();
 		previous_SoC = float_SoC;
 		
-		SoC_Calculate(500); 									// Charging with 500 mA, should take a while
-		sprintf(str,"SoC: %.2f%%\r\n",float_SoC);
+		SoC_Calculate(5000); 									// Charging with 500 mA, should take a while
+		sprintf(str,"SoC: %.9f%%\r\n",float_SoC);
 		UART3_Write(str, strlen(str));
 
 		endTime = clock();							
-		deltaTime = (double)(endTime - startTime)/80000000; // returns clock cycles of SoC_Calculate function
-		ampHoursCollected = (500 * 0.0001) * deltaTime;
+		deltaTime = (float)(endTime - startTime)/80000000; // returns clock cycles of SoC_Calculate function
+		ampHoursCollected = (5000 * 0.0001) * deltaTime;
 		theoretical_SoC = previous_SoC + (ampHoursCollected * 100)/MAX_CHARGE;
-		sprintf(str,"theoretical_SoC: %.2f%%\r\n",theoretical_SoC);
+		sprintf(str,"theoretical_SoC: %.9f%%\r\n",theoretical_SoC);
 		UART3_Write(str, strlen(str));
 		
 	}
@@ -670,22 +670,21 @@ void DischargingSoCTest(void) {
 	float_SoC = 100.00;
 	
 	clock_t startTime, endTime;
-	double deltaTime, ampHoursCollected, previous_SoC, theoretical_SoC;
+	float deltaTime, ampHoursCollected, previous_SoC, theoretical_SoC;
 	
 	while(1){
-		
 		startTime = clock();
 		previous_SoC = float_SoC;
 		
-		SoC_Calculate(-500); 									// Consuming 500 mA, should take a while
-		sprintf(str,"SoC: %.2f%%\r\n",float_SoC);
+		SoC_Calculate(-5000); 									// Charging with 500 mA, should take a while
+		sprintf(str,"SoC: %.9f%%\r\n",float_SoC);
 		UART3_Write(str, strlen(str));
-		
+
 		endTime = clock();							
-		deltaTime = (double)(endTime - startTime)/80000000; // returns clock cycles of SoC_Calculate function
-		ampHoursCollected = (500 * 0.0001) * deltaTime;
+		deltaTime = (float)(endTime - startTime)/80000000; // returns clock cycles of SoC_Calculate function
+		ampHoursCollected = (-5000 * 0.0001) * deltaTime;
 		theoretical_SoC = previous_SoC + (ampHoursCollected * 100)/MAX_CHARGE;
-		sprintf(str,"theoretical_SoC: %.2f%%\r\n",theoretical_SoC);
+		sprintf(str,"theoretical_SoC: %.9f%%\r\n",theoretical_SoC);
 		UART3_Write(str, strlen(str));
 	}
 }

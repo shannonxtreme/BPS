@@ -502,6 +502,11 @@
               <FileType>5</FileType>
               <FilePath>.\Drivers\inc\LED.h</FilePath>
             </File>
+            <File>
+              <FileName>BatteryBalancing.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Drivers\inc\BatteryBalancing.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

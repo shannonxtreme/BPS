@@ -49,11 +49,11 @@ void SoC_Calculate(int16_t amps){
 	TIM2->CNT = 0;																		// set counter to zero to count up again
 																										// counter is decrementing 
 
-	float timeElapsed = (MAX_COUNT - counter)/RCC_Clocks.SYSCLK_Frequency;							//timeElapsed == secounds		
+	float timeElapsed = ((float)MAX_COUNT - counter)/RCC_Clocks.SYSCLK_Frequency;							//timeElapsed == secounds		
 	
 	timeElapsed /= 3600;  														// time in hours
 	
-	float float_amps = amps * .0001;									// Fixed point to floating point
+	float float_amps = (float)amps * .0001;									// Fixed point to floating point
 	
 	float AhCollected = timeElapsed * float_amps;
 	
