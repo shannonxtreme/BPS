@@ -676,7 +676,7 @@ void DischargingSoCTest(void) {
 		startTime = clock();
 		previous_SoC = float_SoC;
 		
-		SoC_Calculate(-5000); 									// Charging with 500 mA, should take a while
+		SoC_Calculate(-5000); 									// Consuming 500 mA, should take a while
 		sprintf(str,"SoC: %.9f%%\r\n",float_SoC);
 		UART3_Write(str, strlen(str));
 
