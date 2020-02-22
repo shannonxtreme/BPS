@@ -17,6 +17,7 @@
 #include "PLL.h"
 
 cell_asic Minions[NUM_MINIONS];
+uint8_t NUM_MODULES_PER_MINION[NUM_MINIONS] = {8,8,8,7}; //Array to get module count from minion index
 
 void initialize(void);
 void preliminaryCheck(void);
@@ -202,7 +203,30 @@ void faultCondition(void){
 // E.g. If you want to run a LTC6811 test, change "#define CHANGE_THIS_TO_TEST_NAME" to the
 //		following:
 //		#define LTC6811_TEST
-#define CAN_TEST_2
+#define BatteryBalancing_TEST
+
+#ifdef BatteryBalancing_TEST
+
+#include "BatteryBalancing.h"
+#include "UART.h"
+#include "SysTick.h"
+int main(){
+	/*Change potentiometers to simulate voltage and print values of bits
+	Modules with highest voltage should have bit 1 set
+	*/
+	UART3_Init();
+	Voltage_Init(Minions);
+	ReleaseChargeInit(); 
+	ReleaseCharge(&Minions[NUM_MINIONS]);
+	for (int x = 0; x < 11; x++){
+		printf("\r\n%d",Minions[x].config.tx_data[4]);
+		printf(" %d" ,Minions[x].config.tx_data[5]);
+			DelayMs(1000);
+	}
+	printf("\n");
+	DelayMs(100000);
+}
+#endif
 
 #ifdef Systick_TEST
 
@@ -1014,7 +1038,7 @@ int main(void) {
 }
 
 
-#elif define CAN_TEST_2
+#define CAN_TEST_2
 
 #include "CAN.h"
 /*message:
