@@ -17,6 +17,7 @@ typedef enum {SAFE = 0, DANGER = 1, OVERVOLTAGE = 2, UNDERVOLTAGE = 3} SafetySta
 //--------------------------------------------------------------------------------
 // Basic Parameters of BPS layout
 #define NUM_MINIONS						4		// Number of minion boards
+extern uint8_t NUM_MODULES_PER_MINION[];
 												//
 
 //--------------------------------------------------------------------------------
