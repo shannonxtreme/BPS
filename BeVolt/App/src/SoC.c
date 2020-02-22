@@ -4,6 +4,8 @@
 #include "SoC.h"
 
 #define MAX_CHARGE 1000*1000																								// In amp-hours (Ah), for now it is a dummy value
+#define MAX_COUNT 0xFFFF
+
 uint32_t fixedPoint_SoC;																										// % of how much charge is left in battery with .01 resolution
 float float_SoC;																														// float vers of SoC
 
@@ -17,7 +19,7 @@ void SoC_Init(void){
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE); 					//Enable TIM clock	
 	TIM_TimeBaseInitTypeDef Init_TIM2;								 						//make struct
 	
-	Init_TIM2.TIM_Prescaler = 1;				
+	Init_TIM2.TIM_Prescaler = 1;																	// CNT counts at the the default frequency 
 	Init_TIM2.TIM_CounterMode = TIM_CounterMode_Down;
 	Init_TIM2.TIM_Period = 0xFFFF-1;									
 	Init_TIM2.TIM_ClockDivision = TIM_CKD_DIV1;	
@@ -45,10 +47,11 @@ void SoC_Calculate(int16_t amps){
 		
 	uint32_t counter = TIM2->CNT;											// find current value of up counter
 	TIM2->CNT = 0;																		// set counter to zero to count up again
+																										// counter is decrementing 
+
+	float timeElapsed = (MAX_COUNT - counter)/RCC_Clocks.SYSCLK_Frequency;							//timeElapsed == secounds		
 	
-	float timeElapsed = (0xFFFF - counter)/60;
-	timeElapsed /= 60;
-	timeElapsed /= RCC_Clocks.SYSCLK_Frequency;  			// time in hours
+	timeElapsed /= 3600;  														// time in hours
 	
 	float float_amps = amps * .0001;									// Fixed point to floating point
 	

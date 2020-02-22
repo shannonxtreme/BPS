@@ -202,7 +202,7 @@ void faultCondition(void){
 // E.g. If you want to run a LTC6811 test, change "#define CHANGE_THIS_TO_TEST_NAME" to the
 //		following:
 //		#define LTC6811_TEST
-#define CAN_TEST_2
+#define SOC_TEST
 
 #ifdef Systick_TEST
 
@@ -616,6 +616,10 @@ int main(){
 #include "SOC.h"
 #include <stdio.h>
 #include <UART.h>
+#include <time.h>
+
+#define MAX_CHARGE 1000*1000
+
 void ChargingSoCTest(void);
 void DischargingSoCTest(void);
 
@@ -623,9 +627,9 @@ extern uint32_t fixedPoint_SoC;
 extern float float_SoC;
 
 int main(){
-	UART3_Init(9600);
+	UART3_Init();
 	SoC_Init();
-	//ChargingSoCTest();
+	ChargingSoCTest();
 	//DischargingSoCTest();
 }
 
@@ -636,10 +640,24 @@ void ChargingSoCTest(void) {
 
 	fixedPoint_SoC = 0;
 	float_SoC = 0;
+	
+	clock_t startTime, endTime;
+	double deltaTime, ampHoursCollected, previous_SoC, theoretical_SoC;
 	while(1){
+		startTime = clock();
+		previous_SoC = float_SoC;
+		
 		SoC_Calculate(500); 									// Charging with 500 mA, should take a while
 		sprintf(str,"SoC: %.2f%%\r\n",float_SoC);
 		UART3_Write(str, strlen(str));
+
+		endTime = clock();							
+		deltaTime = (double)(endTime - startTime)/80000000; // returns clock cycles of SoC_Calculate function
+		ampHoursCollected = (500 * 0.0001) * deltaTime;
+		theoretical_SoC = previous_SoC + (ampHoursCollected * 100)/MAX_CHARGE;
+		sprintf(str,"theoretical_SoC: %.2f%%\r\n",theoretical_SoC);
+		UART3_Write(str, strlen(str));
+		
 	}
 }
 
@@ -650,9 +668,24 @@ void DischargingSoCTest(void) {
 
 	fixedPoint_SoC = 10000;
 	float_SoC = 100.00;
+	
+	clock_t startTime, endTime;
+	double deltaTime, ampHoursCollected, previous_SoC, theoretical_SoC;
+	
 	while(1){
+		
+		startTime = clock();
+		previous_SoC = float_SoC;
+		
 		SoC_Calculate(-500); 									// Consuming 500 mA, should take a while
 		sprintf(str,"SoC: %.2f%%\r\n",float_SoC);
+		UART3_Write(str, strlen(str));
+		
+		endTime = clock();							
+		deltaTime = (double)(endTime - startTime)/80000000; // returns clock cycles of SoC_Calculate function
+		ampHoursCollected = (500 * 0.0001) * deltaTime;
+		theoretical_SoC = previous_SoC + (ampHoursCollected * 100)/MAX_CHARGE;
+		sprintf(str,"theoretical_SoC: %.2f%%\r\n",theoretical_SoC);
 		UART3_Write(str, strlen(str));
 	}
 }
