@@ -218,13 +218,9 @@ int main(){
 	Voltage_Init(Minions);
 	ReleaseChargeInit(); 
 	ReleaseCharge(&Minions[NUM_MINIONS]);
-	for (int x = 0; x < 11; x++){
-		printf("\r\n%d",Minions[x].config.tx_data[4]);
-		printf(" %d" ,Minions[x].config.tx_data[5]);
-			DelayMs(1000);
-	}
+	
+	
 	printf("\n");
-	DelayMs(100000);
 }
 #endif
 

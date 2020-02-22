@@ -33,13 +33,14 @@ void ReleaseCharge(cell_asic Minions[]){
 		uint16_t voltage = Voltage_GetModuleMillivoltage(k);//Get voltage of module
 		if (voltage > minVoltage + chargingTolerance) {//Check to see if module is greater than min
 			setDischarge(k, Minions);//Set discharge bit if module is too high
-			printf("\n\rDischarging battery #%d",k);
+			printf("\n\rSetting discharge bit #%d",k);
 			stillDischarging = true;
 		}
 		else {//Clear discharge bit of module if it reaches minimum
 			uint8_t ICIndex;
 			uint8_t MNumber;
 			getICNumber(k, &ICIndex, &MNumber);//Get module number and IC Board
+			printf("\n\rClearing discharge bit #%d",k);
 			ClearDischargeBit(MNumber , 1, &Minions[ICIndex]);//Clear discharge bit
 		}
 	}
@@ -49,28 +50,32 @@ void ReleaseCharge(cell_asic Minions[]){
 	}
 }
 
-void ClearDischargeBit(int Cell, uint8_t total_ic, cell_asic ic[])
+void ClearDischargeBit(int Cell, //The cell to be discharged
+						   uint8_t total_ic, //Number of ICs in the system
+						   cell_asic *ic //A two dimensional array that will store the data
+						   )
 {
-  for (int i=0; i<total_ic; i++)
+  for(int i=0; i<total_ic; i++)
   {
-    if (Cell<9)
-    {
-      ic[i].config.tx_data[4] = ic[i].config.tx_data[4] & ~(1<<(Cell-1));
-    }
-    else if (Cell < 13)
-    {
-      ic[i].config.tx_data[5] = ic[i].config.tx_data[5] & ~(1<<(Cell-9));
-    }
-  }
+    if((Cell<9)&& (Cell!=0))
+      ic[i].config.tx_data[4] = ic[i].config.tx_data[4] | (1<<(Cell-1));
+    else if(Cell < 13)
+      ic[i].config.tx_data[5] = ic[i].config.tx_data[5] | (1<<(Cell-9));
+	else
+		break;
+ }
 }
 
 void setDischarge(uint8_t i, cell_asic ic[]) {
 	uint8_t ICNumber = 0; 
 	uint8_t ModuleNumber = 0;
 	getICNumber(i, &ICNumber, &ModuleNumber);//Get IC and Module number
-	ic[i].config.tx_data[4] = ic[i].config.tx_data[4] & (1<<(ModuleNumber-1));
-	LTC6811_set_discharge(ModuleNumber, 1, &ic[ICNumber]); //Set discharge bit
+	//ic[i].config.tx_data[4] = ic[i].config.tx_data[4] | (1<<(ModuleNumber-1));
+	LTC6811_set_discharge(ModuleNumber, 0, &ic[ICNumber]); //Set discharge bit
 	LTC681x_wrcfg(1,ic);	
+	LTC681x_rdcfg(1,ic);
+	printf("\r\n%d",ic[0].config.rx_data[4]);
+	printf(" %d" ,ic[0].config.rx_data[5]);
 }
 
 void getICNumber(uint8_t i, uint8_t* ICNumber, uint8_t* ModuleNumber) {

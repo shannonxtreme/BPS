@@ -22,8 +22,8 @@ extern uint8_t NUM_MODULES_PER_MINION[];
 
 //--------------------------------------------------------------------------------
 // Battery Pack layout
-#define NUM_BATTERY_MODULES				31		// Number of battery modules
-#define NUM_TEMPERATURE_SENSORS			62		// Number of temperature sensors
+#define NUM_BATTERY_MODULES				12		// Number of battery modules
+#define NUM_TEMPERATURE_SENSORS			24		// Number of temperature sensors
 #define NUM_TEMP_SENSORS_PER_MOD		2		// Number of temperature sensors per battery module
 
 //--------------------------------------------------------------------------------
