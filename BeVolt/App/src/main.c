@@ -217,8 +217,17 @@ int main(){
 	UART3_Init();
 	Voltage_Init(Minions);
 	ReleaseChargeInit(); 
-	ReleaseCharge(&Minions[NUM_MINIONS]);
+	testDischarge(Minions);
+	for(int i=0; true; i++) {
+		//ReleaseCharge(&Minions[NUM_MINIONS]);
+		//printf("Hello Gay World"); 
+		LTC681x_rdcfg(1, Minions); 
+		printf("0x%x\n\r",Minions[0].config.tx_data[4]);
+	}
 	
+	//printf("Setting discharge bits [0-4] of Minions\n\r");
+	//testDischarge(Minions);
+	//printf("done\n\r");
 	
 	printf("\n");
 }

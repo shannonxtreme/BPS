@@ -17,11 +17,11 @@ void ReleaseChargeInit(void) {
 	Voltage_UpdateMeasurements();
 	minVoltage = Voltage_GetModuleMillivoltage(0);
 	for (uint8_t i = 1; i < NUM_BATTERY_MODULES; i++){
-		printf("\n\rChecking %d, found voltage of %d",i,Voltage_GetModuleMillivoltage(i));
+		printf("\rChecking %d, found voltage of %d\n\r",i,Voltage_GetModuleMillivoltage(i));
 		if(Voltage_GetModuleMillivoltage(i) < minVoltage) {
 			minVoltage = Voltage_GetModuleMillivoltage(i);//Find minimum voltage
 			minIndex = i;//Find module with minimum voltage
-			printf("\n\rNew min of %d found at %d", minVoltage, minIndex);
+			printf("\rNew min of %d found at %d\n\r", minVoltage, minIndex);
 		}
 	}
 }
@@ -66,16 +66,18 @@ void ClearDischargeBit(int Cell, //The cell to be discharged
  }
 }
 
-void setDischarge(uint8_t i, cell_asic ic[]) {
+void setDischarge(uint8_t i, cell_asic ic[]) { //i is module number
 	uint8_t ICNumber = 0; 
 	uint8_t ModuleNumber = 0;
-	getICNumber(i, &ICNumber, &ModuleNumber);//Get IC and Module number
+	getICNumber(i, &ICNumber, &ModuleNumber);//Get IC and ModuleInIC number
+	LTC681x_rdcfg(1,ic);
+	LTC681x_wrcfg(1,ic);
 	//ic[i].config.tx_data[4] = ic[i].config.tx_data[4] | (1<<(ModuleNumber-1));
 	LTC6811_set_discharge(ModuleNumber, 0, &ic[ICNumber]); //Set discharge bit
 	LTC681x_wrcfg(1,ic);	
 	LTC681x_rdcfg(1,ic);
 	printf("\r\n%d",ic[0].config.rx_data[4]);
-	printf(" %d" ,ic[0].config.rx_data[5]);
+	printf(" %d\n" ,ic[0].config.rx_data[5]);
 }
 
 void getICNumber(uint8_t i, uint8_t* ICNumber, uint8_t* ModuleNumber) {
@@ -88,4 +90,17 @@ void getICNumber(uint8_t i, uint8_t* ICNumber, uint8_t* ModuleNumber) {
 			return;
 		}
 	}
+}
+
+void testDischarge(cell_asic ic[]) {
+	LTC681x_rdcfg(1, ic); 
+	//uint8_t temp = ic[0].config.tx_data[4]; 
+	printf("0x%x\n\r",ic[0].config.tx_data[4]);
+	ic[0].config.tx_data[4] |= 0xFF;
+	ic[0].config.tx_data[5] |= 0x0F;
+	//ic[0].config.tx_data[0] = temp;
+	LTC681x_wrcfg(1,ic);
+	LTC681x_rdcfg(1,ic);
+	//uint8_t temp1 = ic[0].config.tx_data[4]; 
+	printf("0x%x\n\r",ic[0].config.tx_data[4]);
 }
