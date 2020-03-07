@@ -218,7 +218,7 @@ int main(){
 	Voltage_Init(Minions);
 	ReleaseChargeInit(); 
 	testDischarge(Minions);
-	testStopDischarge(Minions); 
+	//testStopDischarge(Minions); 
 	for(int i=0; true; i++) {
 		//ReleaseCharge(&Minions[NUM_MINIONS]);
 		//printf("Hello Gay World"); 
