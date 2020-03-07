@@ -32,4 +32,6 @@ void testDischarge(cell_asic ic[]);
 
 void testStopDischarge(cell_asic ic[]);
 
+void testTheirDischarge(cell_asic ic[]);
+
 #endif

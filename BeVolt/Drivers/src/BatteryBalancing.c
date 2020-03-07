@@ -117,3 +117,8 @@ void testStopDischarge(cell_asic ic[]) {
 	//uint8_t temp1 = ic[0].config.tx_data[4]; 
 	printf("0x%x\n\r",ic[0].config.tx_data[4]);
 }
+
+void testTheirDischarge(cell_asic ic[]) {
+	bool dcc[12] = {1,1,1,1,1,1,1,1,1,1,1,1}; 
+	LTC6811_set_cfgr_dis(1, ic, dcc);
+}
