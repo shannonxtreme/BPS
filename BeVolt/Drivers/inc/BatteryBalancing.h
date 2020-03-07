@@ -30,4 +30,6 @@ void ClearDischargeBit(int Cell, uint8_t total_ic, cell_asic ic[]);
 
 void testDischarge(cell_asic ic[]);
 
+void testStopDischarge(cell_asic ic[]);
+
 #endif

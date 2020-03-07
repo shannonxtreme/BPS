@@ -104,3 +104,16 @@ void testDischarge(cell_asic ic[]) {
 	//uint8_t temp1 = ic[0].config.tx_data[4]; 
 	printf("0x%x\n\r",ic[0].config.tx_data[4]);
 }
+
+void testStopDischarge(cell_asic ic[]) {
+	LTC681x_rdcfg(1, ic); 
+	//uint8_t temp = ic[0].config.tx_data[4]; 
+	printf("0x%x\n\r",ic[0].config.tx_data[4]);
+	ic[0].config.tx_data[4] &= 0x00;
+	ic[0].config.tx_data[5] &= 0xF0;
+	//ic[0].config.tx_data[0] = temp;
+	LTC681x_wrcfg(1,ic);
+	LTC681x_rdcfg(1,ic);
+	//uint8_t temp1 = ic[0].config.tx_data[4]; 
+	printf("0x%x\n\r",ic[0].config.tx_data[4]);
+}
