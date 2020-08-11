@@ -5,42 +5,55 @@ TARGET = bps-leader
 
 
 ######################################
+# version
+######################################
+# If no version is specified, then default to most recent version. When updating
+# the hardware version, make sure this is updated as well.
+# Most recent version as of 7/29/2020
+ifeq ($(VERSION), none)
+VERSION = 2.1
+endif
+
+######################################
 # building variables
 ######################################
 # optimization
 OPT = -Og
 
+DEBUG = 1
+
 #######################################
 # paths
 #######################################
 # Build path
-BUILD_DIR = ../../Objects
+TOP_DIR = ../..
+BUILD_DIR = $(TOP_DIR)/Objects
 
 ######################################
 # source
 ######################################
 # C sources
-# since current path is in the BSP folder, go to the top level with ../../
+# since current path is in the BSP folder, go to the top level with $(TOP_DIR)/
 C_SOURCES =  \
-$(wildcard ../../Drivers/Src/*.c)	\
-$(wildcard ../../BSP/STM32F413/Src/*.c)	\
-$(wildcard ../../CMSIS/DSP_Lib/Source/*.c)	\
-$(wildcard ../../BSP/STM32F413/STM32F4xx_StdPeriph_Driver/Src/*.c)	
+$(wildcard $(TOP_DIR)/Drivers/Src/*.c)	\
+$(wildcard $(TOP_DIR)/CMSIS/DSP_Lib/Source/*.c)	\
+$(wildcard $(TOP_DIR)/BSP/STM32F413/Src/*.c)	\
+$(wildcard $(TOP_DIR)/BSP/STM32F413/STM32F4xx_StdPeriph_Driver/Src/*.c)	
 
 
 ifneq ($(TEST), none)
 TEST_FILE := Test_$(TEST).c
 # This line adds everything in Apps/Src/*.c except for main.c
 C_SOURCES += \
-$(filter-out ../../Apps/Src/main.c, $(wildcard ../../Apps/Src/*.c))	\
-$(wildcard ../../Tests/$(TEST_FILE))
+$(filter-out $(TOP_DIR)/Apps/Src/main.c, $(wildcard $(TOP_DIR)/Apps/Src/*.c))	\
+$(wildcard $(TOP_DIR)/Tests/$(TEST_FILE))
 else
-C_SOURCES += $(wildcard ../../Apps/Src/*.c)
+C_SOURCES += $(wildcard $(TOP_DIR)/Apps/Src/*.c)
 endif
 
 # ASM sources
 ASM_SOURCES =  \
-../../BSP/STM32F413/Src/startup_stm32f413xx.s
+$(TOP_DIR)/BSP/STM32F413/Src/startup_stm32f413xx.s
 
 
 #######################################
@@ -80,6 +93,9 @@ FLOAT-ABI = -mfloat-abi=hard
 # mcu
 MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 
+# std
+STD = -std=c11
+
 # macros for gcc
 # AS defines
 AS_DEFS = 
@@ -88,28 +104,28 @@ AS_DEFS =
 C_DEFS =  \
 -DSTM32F413_423xx	\
 -DUSE_STDPERIPH_DRIVER	\
+-DBPS_V$(VERSION)	\
 -D__FPU_PRESENT
-
 
 # AS includes
 AS_INCLUDES = 
 
 # C includes
-# since current path is in the BSP folder, go to the top level with ../../
+# since current path is in the BSP folder, go to the top level with $(TOP_DIR)/
 C_INCLUDES =  \
--I../../Apps/Inc	\
--I../../Drivers/Inc	\
--I../../Config/Inc	\
--I../../BSP/Inc	\
--I../../CMSIS/Device/ST/STM32F4xx/Include	\
--I../../CMSIS/Include	\
--I../../BSP/STM32F413/STM32F4xx_StdPeriph_Driver/Inc
+-I$(TOP_DIR)/Apps/Inc	\
+-I$(TOP_DIR)/Drivers/Inc	\
+-I$(TOP_DIR)/Config/Inc	\
+-I$(TOP_DIR)/BSP/Inc	\
+-I$(TOP_DIR)/CMSIS/Device/ST/STM32F4xx/Include	\
+-I$(TOP_DIR)/CMSIS/Include	\
+-I$(TOP_DIR)/BSP/STM32F413/STM32F4xx_StdPeriph_Driver/Inc
 
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CFLAGS = $(STD) $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g3 -gdwarf-2

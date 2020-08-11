@@ -11,7 +11,10 @@ YELLOW=\033[0;33m
 NC=\033[0m # No Color
 
 TEST = none
+VERSION = none
+
 export TEST
+export VERSION
 
 all:
 	@echo "${RED}Not enough arguments. Call: ${ORANGE}make help${NC}"
