@@ -26,7 +26,12 @@
                 "${workspaceFolder}/RTOS/uCOS-III-STM32F4/uC-Serial/Line",
                 "${workspaceFolder}/RTOS/uCOS-III-STM32F4/uC-Serial/OS",
                 "${workspaceFolder}/RTOS/uCOS-III-STM32F4/uC-Serial/OS/uCOS-III",
-                "${workspaceFolder}/RTOS/uCOS-III-STM32F4/uC-Serial/Source"
+                "${workspaceFolder}/RTOS/uCOS-III-STM32F4/uC-Serial/Source",
+                "${workspaceFolder}/RTOS/uCOS-III-Simulator/uCOS-III/Source",
+                "${workspaceFolder}/RTOS/uCOS-III-Simulator/uCOS-III/Ports/POSIX/GNU",
+                "${workspaceFolder}/RTOS/uCOS-III-Simulator/uC-CPU",
+                "${workspaceFolder}/RTOS/uCOS-III-Simulator/uC-CPU/Posix/GNU",
+                "${workspaceFolder}/RTOS/uCOS-III-Simulator/uC-LIB"
             ],
             "defines": [
                 "STM32F413_423xx",

@@ -4,8 +4,39 @@
 #include "Voltage.h"
 #include "Temperature.h"
 
+/*******************************************************************************
+*    Shared Resources
+*******************************************************************************/
+
+/**
+ * @brief   Queue for pushing and popping CAN Messages
+ */
+OS_Q CANBus_MsgQ;
+
+/**
+ * Semaphores
+ */
+OS_SEM SafetyCheck_Sem4;
+OS_SEM Fault_Sem4;
+
+/**
+ * Mutexes
+ */
+
+
 void Tasks_Init(void) {
 
+    OS_ERR err;
+
+    OSSemCreate(&SafetyCheck_Sem4,
+                "Safety Check Semaphore",
+                4,
+                &err);
+
+    OSSemCreate(&Fault_Sem4,
+                "Fault/Tripped Semaphore",
+                0,
+                &err);
 }
 
 void Task_FaultState(void *p_arg) {
@@ -45,7 +76,11 @@ void Task_AmperesMonitor(void *p_arg) {
     }
 }
 
-void Task_CANBus(void *p_arg) {
+void Task_LogInfo(void *p_arg) {
+    (void)p_arg;
+}
+
+void Task_CANBusConsumer(void *p_arg) {
     (void)p_arg;
 
     while(1) {
@@ -53,8 +88,12 @@ void Task_CANBus(void *p_arg) {
     }
 }
 
-void Task_LogInfo(void *p_arg) {
-    (void)p_arg;
+void Task_MotorNotify(void *p_arg) {
+
+}
+
+void Task_BatteryBalance(void *p_arg) {
+
 }
 
 void Task_CLI(void *p_arg) {
@@ -74,7 +113,7 @@ void Task_BLE(void *p_arg) {
 }
 
 void Task_Idle(void *p_arg) {
-`   (void)p_arg;
+    (void)p_arg;
 
     while(1) {
         // Todo: Do something cool or be lame.
