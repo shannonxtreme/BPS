@@ -4,6 +4,7 @@
 #include "Voltage.h"
 #include "Temperature.h"
 
+<<<<<<< HEAD
 /*******************************************************************************
 *    Shared Resources
 *******************************************************************************/
@@ -37,6 +38,10 @@ void Tasks_Init(void) {
                 "Fault/Tripped Semaphore",
                 0,
                 &err);
+=======
+void Tasks_Init(void) {
+
+>>>>>>> 38847878d903775b4e06ab5abd32972bff8cc132
 }
 
 void Task_FaultState(void *p_arg) {
@@ -76,11 +81,15 @@ void Task_AmperesMonitor(void *p_arg) {
     }
 }
 
+<<<<<<< HEAD
 void Task_LogInfo(void *p_arg) {
     (void)p_arg;
 }
 
 void Task_CANBusConsumer(void *p_arg) {
+=======
+void Task_CANBus(void *p_arg) {
+>>>>>>> 38847878d903775b4e06ab5abd32972bff8cc132
     (void)p_arg;
 
     while(1) {
@@ -88,12 +97,17 @@ void Task_CANBusConsumer(void *p_arg) {
     }
 }
 
+<<<<<<< HEAD
 void Task_MotorNotify(void *p_arg) {
 
 }
 
 void Task_BatteryBalance(void *p_arg) {
 
+=======
+void Task_LogInfo(void *p_arg) {
+    (void)p_arg;
+>>>>>>> 38847878d903775b4e06ab5abd32972bff8cc132
 }
 
 void Task_CLI(void *p_arg) {
@@ -113,7 +127,11 @@ void Task_BLE(void *p_arg) {
 }
 
 void Task_Idle(void *p_arg) {
+<<<<<<< HEAD
     (void)p_arg;
+=======
+`   (void)p_arg;
+>>>>>>> 38847878d903775b4e06ab5abd32972bff8cc132
 
     while(1) {
         // Todo: Do something cool or be lame.
